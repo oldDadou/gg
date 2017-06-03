@@ -3,11 +3,20 @@ extern crate specs;
 
 extern crate tmx;
 
+use engine::Drawable;
+use map::*;
+
 pub struct Scene {
-    pub map: tmx::Map
+    pub map: Map
 }
 
 pub struct SceneBuilder {
+}
+
+impl Drawable for Scene {
+    fn draw(&self, canvas: &mut sdl2::render::Canvas<sdl2::video::Window>) {
+        self.map.draw(canvas);
+    }
 }
 
 impl SceneBuilder {
@@ -19,10 +28,7 @@ impl SceneBuilder {
 
     pub fn load(self) ->  Scene {
 
-        let map = match tmx::Map::open("assets/sans-titre2.tmx") {
-            Ok(map) => map,
-            Err(e) => panic!("Got an error: {}", e)
-        };
+        let map = Map::new();
 
         Scene{
             map: map

@@ -1,50 +1,19 @@
-# What the game is about
+Open questions:
+  ☐ I still need to find out how to organize the code.
+  ☐ I am still waiting to one answer to this trhead: https://github.com/AngryLawyer/rust-sdl2/issues/667.
 
-## Technical details
-This game will be a sort of advance wars; turn by turn based. I don't know yet
-if the turn will be for a character (ff tactics, disgaea, Dofus)
-or for the whole team (FE, advance Wars).
+General:
+  ☐ I realy realy need to add some comments.
 
-The game will be view from top (like zelda). I want to give to the gameplay
-an aspect of base building; My first idea is to have neutral building that will
-be captured by the player. But we could imagine a way to construct building.  
+TMX:
+  ☐ Need to change the API to have other access than the iterators.
+  ☐ Have a way to access to layer by names.
+  ☐ See if a new whole implementation is neede.
+  ☐ See if the apache2 LICENCE is compatible with the project.
+  ☐ Handle the csv encoding.
+  ☐ Handle if the tiles is flipped (Maybe not directly into the map)
+    Indeed, handle the flip in this would make me keep metadata for
+    each tiles of the map. I am not sure if I want that.
 
-**Ideally I would have a pvp mode using networks connections.**
-
-# What does an engine need ?
-
-## What can be generic
-
-I don't want to over engineer the game; but I think
-that some part of the code might be use-full in a large
-set of games.
-
-* The rendering of the map.
-* The loading of the scene.
-
-* The game loop, with a smooth time handling.
-* The events (Keyboard etc).
-* The network.
-
-## What cannot be generic
-
-* The logic of the game
-
-## Engine:
-My first Idea is to make the engine be a class that (can) holds a Scene;
-If no scene is loaded, then it means that the gamer is in the main menu.
-
-Once a scene is ~~loaded~~ selected, the Engine will do some actions
-in the following order:
-
-- Initialize the scene
-- While the scene is active
-  - Render the logic
-  - Draw the scene
-- Discard the scene
-
-### A Scene must
-  * Know how to draw itself.
-  * Know all entities, and how they update.
-
-## A Scene can load a level 
+Level:
+  ☐ I need to define a format to describe a level.

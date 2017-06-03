@@ -7,6 +7,7 @@ extern crate tmx;
 
 mod engine;
 mod scene;
+mod map;
 
 use engine::*;
 
