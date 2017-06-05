@@ -47,4 +47,26 @@ in the following order:
   * Know how to draw itself.
   * Know all entities, and how they update.
 
-## A Scene can load a level 
+## A Scene can load a level
+
+# SDL2 binding
+
+I can't use it because I think the api os very difficult to understand. To go more in details, my issue
+was to that I could not create some kind of game engine. I was not able to use some
+pieces of the API. Indeed the textures need to be bounded to a texture creator. It leads to huge lifetime issue.
+I decided to stop to use this API till I get more rust skill or the API is more understandable.
+
+# Piston
+
+Oh piston seems rather great, but it is splitted into a lot of submodules which make it difficult to understand in the first
+try.
+
+## Sprite
+I tried to use the https://github.com/PistonDevelopers/sprite, but this does not looks like
+exactly what I need. Event if the code is organized into an abstraction that I might want to have to,
+(Sprite; Scene). I don't really like it because It is difficult to create a game based on an ECS.
+In addition, I noticed that if I want to render a tiled map (which is one of my goals); I need to defined a sprite
+by case, which I don't think it is what I want. It may cost a lot in memory.
+
+So what ? I think I will use piston but I will need to write my own framework.
+So the next step is to define what I want my framework to be.
