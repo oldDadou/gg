@@ -19,9 +19,11 @@ use opengl_graphics::*;
 
 fn main() {
     let opengl = OpenGL::V3_2;
+
     let mut window: Sdl2Window =
-        WindowSettings::new("opengl_graphics: hello_world", [320, 320])
+        WindowSettings::new("opengl_graphics: hello_world", [640, 640])
         .exit_on_esc(true)
+        .vsync(true)
         .opengl(opengl)
         .build()
         .unwrap();

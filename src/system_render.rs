@@ -29,6 +29,7 @@ fn create_texture_from_image(img: image::ImageBuffer<image::Rgba<u8>, Vec<u8>>) 
     let mut texture_settings = opengl_graphics::TextureSettings::new();
     texture_settings.set_convert_gamma(true);
     texture_settings.set_compress(true);
+    texture_settings.set_mag(Filter::Nearest);
     opengl_graphics::Texture::from_image(&img, &texture_settings)
 }
 
@@ -103,6 +104,7 @@ impl<'a, 'b> System<'a> for RenderSystem<'b> {
 
     fn run(&mut self, data: Self::SystemData) {
         use graphics::*;
+        use graphics::image::draw_many;
 
         let (resource, map) = data;
 
@@ -114,34 +116,20 @@ impl<'a, 'b> System<'a> for RenderSystem<'b> {
             surface_size: (tex_w, tex_h)
         };
 
-        // let t = Texture::from_path(&Path::new("./assets/Overworld.png")).unwrap();
         match resource.args {
             Some(args) => {
 
-                let (screen_w, screen_h) = (args.width as f64, args.height as f64);
 
-                let scale_w = screen_w/160f64;
-                let scale_h = screen_h/160f64;
-
-                let scale_w = 1.0;
-                let scale_h = 1.0;
-
-                println!("{:?} {:?}", args, (scale_w, scale_h));
-
-                let viewport = Viewport{
-                    rect: [0, 0, 160, 160],
-                    draw_size: [args.width, args.height],
-                    window_size: [args.width, args.height]
-                };
+                let (scale_w, scale_h) = ((args.width as f64/160f64), (args.height as f64/160f64));
 
                 let hack = self.texture.clone();
 
                 self.gl.draw(args.viewport(), |c, g| {
-
-                    let _c = Context::new_viewport(viewport);
                     // image(&*hack, c.transform, g);
 
-                    clear([0.0, 0.0, 0.0, 0.0], g);
+                    clear([255.0, 0.0, 0.0, 0.0], g);
+                    let mut glyph_rectangles: Vec<([f64; 4], [f64; 4])> = vec![];
+
                     for b in (&map).join() {
                         let map: &tiled_map::Map = b;
 
@@ -149,19 +137,26 @@ impl<'a, 'b> System<'a> for RenderSystem<'b> {
                             for ti in l.data().unwrap().tiles().enumerate() {
 
                                 let position = [ (sprite_w * ((ti.0 as u32)  % 10u32)) as f64,  (sprite_h * ((ti.0 as u32) / 10u32)) as f64 ];
-                                let transformed = _c.transform.trans(position[0], position[1]);
 
-                                let ref draw_state: DrawState = Default::default();
+                                // let transformed = c.transform.trans((position[0] * scale_w).floor(), (position[1] * scale_h).floor())
+                                //     .scale(scale_w as f64, scale_h as f64);
+
+
+                                // println!("{}: {:?}", (ti.0), transformed);
 
                                 let vec = grid.access_sprite((ti.1.gid) as u32);
+                                glyph_rectangles.push(([position[0], position[1], sprite_w as f64, sprite_h as f64], vec));
 
-                                Image::new()
-                                .rect([0f64, 0f64, 16f64, 16f64])
-                                .maybe_src_rect(Some(vec))
-                                .draw(&*hack, draw_state, transformed, g);
+                                // If I want to render on the fly
+                                // Image::new()
+                                // .rect([0f64, 0f64, sprite_w as f64, sprite_h as f64])
+                                // .maybe_src_rect(Some(vec))
+                                // .draw(&*hack, &DrawState::default(), transformed, g);
                             }
                         }
                     }
+
+                    draw_many(&glyph_rectangles, [1.0, 1.0, 1.0, 1.0], &*hack, &DrawState::default(), c.transform.scale(scale_w as f64, scale_h as f64), g);
                 });
             },
             _ => {
