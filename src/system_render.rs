@@ -56,6 +56,50 @@ fn convert_image_from_srgb_to_linear(img: image::ImageBuffer<image::Rgba<u8>, Ve
         new_img
 }
 
+struct Camera {
+    position: [f64; 2],
+    area: [f64; 2]
+}
+
+impl Camera {
+
+    #[inline]
+    pub fn collide(&self, square: &[f64; 4]) -> bool {
+        let self_square = [ self.position[0] - self.area[0],
+                            self.position[1] - self.area[1],
+                            self.position[0] + self.area[0],
+                            self.position[1] + self.area[1]
+                            ];
+
+        !(square[0] > (self_square[0] + self_square[2]) ||
+        (square[0] + square[2]) < self_square[0] ||
+        square[1] > (self_square[1] + self_square[3]) ||
+        (square[1] + square[3]) < self_square[1])
+
+    }
+
+    // pub fn collide(&self, square: &[f64; 4]) -> bool {
+    //     let self_square = [ self.position[0] - self.area[0],
+    //                         self.position[1] - self.area[1],
+    //                         self.position[0] + self.area[0],
+    //                         self.position[1] + self.area[1]
+    //                         ];
+    //
+    //     if
+    //     (f64::abs(self_square[0] - square[0]) * 2f64 < (self_square[2] + square[2]))
+    //     &&
+    //     (f64::abs(self_square[1] - square[1]) * 2f64 < (self_square[3] + square[3])) {
+    //         println!("{:?}", self_square);
+    //         println!("{:?}", square);
+    //         return true
+    //     }
+    //     false
+    //
+    // }
+
+}
+
+
 struct TilesGridAccessor{
     tiles_size: (u32, u32),
     surface_size: (u32, u32)
@@ -108,7 +152,11 @@ impl<'a, 'b> System<'a> for RenderSystem<'b> {
 
         let (resource, map) = data;
 
+        let (map_w, map_h) = (30, 30);
+
         let (sprite_w, sprite_h) = (16 as u32, 16 as u32);
+        let (map_pixel_w, map_pixel_h) = (map_w * sprite_w, map_h * sprite_h);
+
         let (tex_w, tex_h) = self.texture.get_size();
 
         let grid = TilesGridAccessor {
@@ -116,11 +164,16 @@ impl<'a, 'b> System<'a> for RenderSystem<'b> {
             surface_size: (tex_w, tex_h)
         };
 
+        let camera = Camera{
+            position: [160f64, 160f64],
+            area: [5f64 * 16f64, 5f64 * 16f64]
+        };
+
         match resource.args {
             Some(args) => {
 
 
-                let (scale_w, scale_h) = ((args.width as f64/160f64), (args.height as f64/160f64));
+                let (scale_w, scale_h) = ((args.width as f64/(map_pixel_w as f64)), (args.height as f64/ map_pixel_h as f64));
 
                 let hack = self.texture.clone();
 
@@ -131,27 +184,19 @@ impl<'a, 'b> System<'a> for RenderSystem<'b> {
                     let mut glyph_rectangles: Vec<([f64; 4], [f64; 4])> = vec![];
 
                     for b in (&map).join() {
+
                         let map: &tiled_map::Map = b;
+                        for l in map.tmx.layers().enumerate() {
+                            for ti in l.1.data().unwrap().tiles().enumerate() {
 
-                        for l in map.tmx.layers() {
-                            for ti in l.data().unwrap().tiles().enumerate() {
-
-                                let position = [ (sprite_w * ((ti.0 as u32)  % 10u32)) as f64,  (sprite_h * ((ti.0 as u32) / 10u32)) as f64 ];
-
-                                // let transformed = c.transform.trans((position[0] * scale_w).floor(), (position[1] * scale_h).floor())
-                                //     .scale(scale_w as f64, scale_h as f64);
-
-
-                                // println!("{}: {:?}", (ti.0), transformed);
+                                let position = [ ((ti.0 as u32)  % map_w) as f64,  ((ti.0 as u32) / map_h) as f64 ];
+                                let pixel_position = [ (sprite_w * ((ti.0 as u32)  % map_w)) as f64,  (sprite_h * ((ti.0 as u32) / map_h)) as f64 ];
 
                                 let vec = grid.access_sprite((ti.1.gid) as u32);
-                                glyph_rectangles.push(([position[0], position[1], sprite_w as f64, sprite_h as f64], vec));
+                                if camera.collide(&[pixel_position[0], pixel_position[1], 16f64 , 16f64]) {
+                                    glyph_rectangles.push(([pixel_position[0], pixel_position[1], sprite_w as f64, sprite_h as f64], vec));
+                                }
 
-                                // If I want to render on the fly
-                                // Image::new()
-                                // .rect([0f64, 0f64, sprite_w as f64, sprite_h as f64])
-                                // .maybe_src_rect(Some(vec))
-                                // .draw(&*hack, &DrawState::default(), transformed, g);
                             }
                         }
                     }

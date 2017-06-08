@@ -21,7 +21,7 @@ fn main() {
     let opengl = OpenGL::V3_2;
 
     let mut window: Sdl2Window =
-        WindowSettings::new("opengl_graphics: hello_world", [640, 640])
+        WindowSettings::new("opengl_graphics: hello_world", [600, 600])
         .exit_on_esc(true)
         .vsync(true)
         .opengl(opengl)
