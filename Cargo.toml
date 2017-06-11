@@ -17,7 +17,7 @@ gl = "0.6.0"
 shader_version = "0.2.0"
 fnv = "1.0.2"
 
-tmx = { git = "https://github.com/adfaure/tmx" }
+tmx = { path = "../tmx" }
 
 specs = { git = "https://github.com/slide-rs/specs" }
 

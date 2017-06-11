@@ -1,9 +1,12 @@
 extern crate tmx;
 extern crate find_folder;
 
+
 #[derive(Debug)]
 pub struct Map {
     pub tmx: tmx::Map,
+    pub dimension: (u32, u32),
+    pub tile_size: (u32, u32),
 }
 
 impl Map {
@@ -20,6 +23,17 @@ impl Map {
             Err(e) => panic!("Got an error: {}", e),
         };
 
-        Map { tmx: tmx_map }
+        for layer in tmx_map.layers() {
+            println!("{:?}", layer.name());
+        }
+
+        let dimension = (tmx_map.width(), tmx_map.height());
+        let tile_size = (tmx_map.tile_width(), tmx_map.tile_height());
+
+        Map {
+            tmx: tmx_map,
+            dimension: dimension,
+            tile_size: tile_size,
+        }
     }
 }
