@@ -7,15 +7,16 @@ extern crate find_folder;
 
 use specs::prelude::*;
 
+use camera::*;
 mod system_render;
 mod system_camera;
 mod system_input;
-
+mod scene;
 mod tiled_map;
 mod camera;
 
-use camera::*;
-
+use system_input::*;
+use scene::*;
 use piston::event_loop::*;
 use piston::input::*;
 use piston::window::WindowSettings;
@@ -32,62 +33,40 @@ fn main() {
         .build()
         .unwrap();
 
-    let mut gl = GlGraphics::new(opengl);
     let mut events = Events::new(EventSettings::new());
 
-    let sys: system_render::RenderSystem = system_render::RenderSystem::new(&mut gl);
-    let camesys: system_camera::CameraSystem = system_camera::CameraSystem::new();
+    let gl = GlGraphics::new(opengl);
 
-    let camera = Camera {
-        position: [5f64, 5f64],
-        area: [10f64, 10f64],
-    };
-
-    let mut world = World::new();
-
-    world.register::<tiled_map::Map>();
-    world.register::<Camera>();
-
-    world.create_entity().with(tiled_map::Map::new()).build();
-    world.create_entity().with(camera).build();
-
-    // Let's use some start value
-    world.add_resource(system_render::RenderArgsResource { args: None });
-
-    // Init input resources
-    world.add_resource(system_input::PressButtonResource { inputs: vec![] });
-    world.add_resource(system_input::ReleaseButtonResource { inputs: vec![] });
-    world.add_resource(system_input::GameInputResources::new());
-
-    let mut dispatcher = DispatcherBuilder::new()
-        .add_thread_local(system_input::InputSystem {})
-        .add_thread_local(camesys)
-        .add_thread_local(sys)
+    let mut scene = SceneBuilder::new()
+        .map(&String::from("32.tmx"))
+        .graphics(gl)
         .build();
 
     while let Some(e) = events.next(&mut window) {
-        *world.write_resource::<system_render::RenderArgsResource>() =
+
+        *scene.mut_world().write_resource::<system_render::RenderArgsResource>() =
             system_render::RenderArgsResource { args: None };
 
         if let Some(button) = e.press_args() {
-            world
+            scene.mut_world()
                 .write_resource::<system_input::PressButtonResource>()
                 .inputs
                 .push(button);
         }
 
         if let Some(button) = e.release_args() {
-            world
-                .write_resource::<system_input::ReleaseButtonResource>()
+
+            scene.mut_world().write_resource::<system_input::ReleaseButtonResource>()
                 .inputs
                 .push(button);
         }
 
         if let Some(args) = e.render_args() {
-            *world.write_resource::<system_render::RenderArgsResource>() =
+            *scene.mut_world().write_resource::<system_render::RenderArgsResource>() =
                 system_render::RenderArgsResource { args: Some(args.clone()) };
         }
-        dispatcher.dispatch(&mut world.res);
 
+        scene.update();
+        // dispatcher.dispatch(&mut world.res);
     }
 }

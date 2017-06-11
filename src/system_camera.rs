@@ -72,9 +72,9 @@ impl<'a> System<'a> for CameraSystem {
                     }
 
                     if *button == Button::Keyboard(Key::NumPadPlus) {
-                        if (camera.area[0] -0.5f64) > zoom_max {
-                            camera.area[0] -=0.5f64;
-                            camera.area[1] -=0.5f64;
+                        if (camera.area[0] - 0.5f64) > zoom_max {
+                            camera.area[0] -= 0.5f64;
+                            camera.area[1] -= 0.5f64;
                         } else {
                             camera.area[0] = zoom_max;
                             camera.area[1] = zoom_max;
