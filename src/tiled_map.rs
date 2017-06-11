@@ -13,7 +13,7 @@ impl Map {
             .for_folder("assets")
             .unwrap();
 
-        assets.push("large.tmx");
+        assets.push("32.tmx");
 
         let tmx_map = match tmx::Map::open(assets.as_path()) {
             Ok(map) => map,

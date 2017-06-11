@@ -40,7 +40,7 @@ fn main() {
 
     let camera = Camera {
         position: [5f64, 5f64],
-        area: [5f64, 5f64],
+        area: [10f64, 10f64],
     };
 
     let mut world = World::new();

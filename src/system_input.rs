@@ -41,10 +41,6 @@ impl<'a> System<'a> for InputSystem {
     fn run(&mut self, data: Self::SystemData) {
         let (mut press_input, mut release_input, mut game_inputs) = data;
 
-        // println!("down {:?}", game_inputs.key_down);
-        // println!("active {:?}", game_inputs.active_keys);
-        // println!("release {:?}", game_inputs.key_release);
-
         game_inputs.key_down.clear();
         game_inputs.key_release.clear();
 

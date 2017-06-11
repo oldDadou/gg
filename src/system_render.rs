@@ -31,10 +31,10 @@ fn create_texture_from_image(img: image::ImageBuffer<image::Rgba<u8>, Vec<u8>>)
     let mut texture_settings = opengl_graphics::TextureSettings::new();
     texture_settings.set_convert_gamma(true);
     texture_settings.set_compress(true);
-    texture_settings.set_mag(Filter::Nearest);
+    texture_settings.set_filter(Filter::Nearest);
+    // texture_settings.set_mipmap(Filter::Linear);
     opengl_graphics::Texture::from_image(&img, &texture_settings)
 }
-
 
 fn convert_image_from_srgb_to_linear(img: image::ImageBuffer<image::Rgba<u8>, Vec<u8>>)
                                      -> image::ImageBuffer<image::Rgba<u8>, Vec<u8>> {
@@ -76,6 +76,13 @@ impl TilesGridAccessor {
     }
 }
 
+#[inline]
+fn position_to_screen_position(camera: &Camera, rect: &[f64; 2]) -> [f64; 2] {
+    let cam_rect = [camera.position[0] - camera.area[0] / 2f64,
+                    camera.position[1] - camera.area[1] / 2f64];
+
+    [rect[0] - cam_rect[0], rect[1] - cam_rect[1]]
+}
 
 pub struct RenderSystem<'a> {
     pub gl: &'a mut opengl_graphics::GlGraphics,
@@ -84,7 +91,7 @@ pub struct RenderSystem<'a> {
 
 impl<'a> RenderSystem<'a> {
     pub fn new<'b>(gl: &'b mut GlGraphics) -> RenderSystem<'b> {
-        let img = convert_image_from_srgb_to_linear(load_image("Overworld.png"));
+        let img = convert_image_from_srgb_to_linear(load_image("lel.png"));
         let texture = Rc::new(create_texture_from_image(img));
 
         RenderSystem {
@@ -117,8 +124,8 @@ impl<'a, 'b> System<'a> for RenderSystem<'b> {
 
             let (map_w, map_h) = (30, 30);
 
-            let (sprite_w, sprite_h) = (16 as u32, 16 as u32);
-            let (map_pixel_w, map_pixel_h) = (map_w * sprite_w, map_h * sprite_h);
+            let (sprite_w, sprite_h) = (32 as u32, 32 as u32);
+            // let (map_pixel_w, map_pixel_h) = (map_w * sprite_w, map_h * sprite_h);
 
             let (tex_w, tex_h) = self.texture.get_size();
 
@@ -130,8 +137,9 @@ impl<'a, 'b> System<'a> for RenderSystem<'b> {
             match resource.args {
                 Some(args) => {
 
-                    let (scale_w, scale_h) = ((args.width as f64 / (map_pixel_w as f64)),
-                                              (args.height as f64 / map_pixel_h as f64));
+                    let (scale_w, scale_h) =
+                        ((args.width as f64 / (sprite_w as f64 * camera.area[0])),
+                         (args.height as f64 / (sprite_h as f64 * camera.area[1])));
 
                     let hack = self.texture.clone();
 
@@ -155,11 +163,17 @@ impl<'a, 'b> System<'a> for RenderSystem<'b> {
 
                                         if camera.collide(&[position[0], position[1], 1f64, 1f64]) {
 
-                                            let pixel_position = [sprite_w as f64 * position[0],
-                                                                  sprite_h as f64 * position[1]];
 
-                                            glyph_rectangles.push(([pixel_position[0],
-                                                                    pixel_position[1],
+                                            let screen_position =
+                                                position_to_screen_position(camera,
+                                                                            &position as &[f64; 2]);
+                                            let pixel_position =
+                                                [(sprite_w as f64 * screen_position[0]),
+                                                 sprite_h as f64 * screen_position[1]];
+
+                                            println!("{:?}", screen_position);
+                                            glyph_rectangles.push(([pixel_position[0].ceil(),
+                                                                    pixel_position[1].ceil(),
                                                                     sprite_w as f64,
                                                                     sprite_h as f64],
                                                                    vec));
