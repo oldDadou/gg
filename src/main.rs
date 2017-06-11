@@ -5,17 +5,16 @@ extern crate sdl2_window;
 extern crate specs;
 extern crate find_folder;
 
-use specs::prelude::*;
-
-use camera::*;
 mod system_render;
 mod system_camera;
 mod system_input;
+
 mod scene;
+
 mod tiled_map;
+mod renderable;
 mod camera;
 
-use system_input::*;
 use scene::*;
 use piston::event_loop::*;
 use piston::input::*;
@@ -26,7 +25,7 @@ use opengl_graphics::*;
 fn main() {
     let opengl = OpenGL::V3_2;
 
-    let mut window: Sdl2Window = WindowSettings::new("opengl_graphics: hello_world", [600, 600])
+    let mut window: Sdl2Window = WindowSettings::new("opengl_graphics: hello_world", [640, 640])
         .exit_on_esc(true)
         .vsync(true)
         .opengl(opengl)
@@ -38,7 +37,7 @@ fn main() {
     let gl = GlGraphics::new(opengl);
 
     let mut scene = SceneBuilder::new()
-        .map(&String::from("32.tmx"))
+        .map(&String::from("map.tmx"))
         .graphics(gl)
         .build();
 
@@ -55,7 +54,6 @@ fn main() {
         }
 
         if let Some(button) = e.release_args() {
-
             scene.mut_world().write_resource::<system_input::ReleaseButtonResource>()
                 .inputs
                 .push(button);

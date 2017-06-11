@@ -4,7 +4,7 @@ extern crate specs;
 extern crate image;
 
 use piston::input::*;
-use specs::prelude::*;
+use specs::*;
 use camera::*;
 use system_input::*;
 use tiled_map;
@@ -27,7 +27,6 @@ fn get_edge_position(camera: &Camera) -> [f64; 4] {
 
 #[inline]
 fn smooth_camera_position(camera: &mut Camera) {
-
     let edge = get_edge_position(camera);
     if edge[2] > 30f64 {
         camera.position[0] = 30f64 - (camera.area[0] / 2f64);
@@ -71,19 +70,22 @@ impl<'a> System<'a> for CameraSystem {
                         camera.position[1] += 0.05;
                     }
 
+                }
+                for button in &game_inputs.key_down {
+
                     if *button == Button::Keyboard(Key::NumPadPlus) {
-                        if (camera.area[0] - 0.5f64) > zoom_max {
-                            camera.area[0] -= 0.5f64;
-                            camera.area[1] -= 0.5f64;
+                        if (camera.area[0] - 2f64) > zoom_max {
+                            camera.area[0] -= 2f64;
+                            camera.area[1] -= 2f64;
                         } else {
                             camera.area[0] = zoom_max;
                             camera.area[1] = zoom_max;
                         }
                     }
                     if *button == Button::Keyboard(Key::NumPadMinus) {
-                        if (camera.area[0] + 0.5f64) < zoom_min {
-                            camera.area[0] += 0.5f64;
-                            camera.area[1] += 0.5f64;
+                        if (camera.area[0] + 2f64) < zoom_min {
+                            camera.area[0] += 2f64;
+                            camera.area[1] += 2f64;
                         } else {
                             camera.area[0] = zoom_min;
                             camera.area[1] = zoom_min;
@@ -91,6 +93,7 @@ impl<'a> System<'a> for CameraSystem {
                     }
 
                 }
+
                 smooth_camera_position(camera)
             }
         }

@@ -5,14 +5,12 @@ extern crate image;
 extern crate tmx;
 
 use camera::*;
-use system_render::image::Pixel;
-use specs::prelude::*;
+use renderable::*;
+use specs::*;
 use piston::input::*;
 use tiled_map;
-use std::rc::Rc;
-use graphics::color::gamma_srgb_to_linear;
-use opengl_graphics::*;
 
+#[derive(Debug)]
 pub struct TilesGridAccessor {
     pub tiles_size: (u32, u32),
     pub surface_size: (u32, u32),
@@ -29,54 +27,8 @@ impl TilesGridAccessor {
          self.tiles_size.0 as f64,
          self.tiles_size.1 as f64]
     }
+
 }
-
-fn load_image(path: &str) -> image::ImageBuffer<image::Rgba<u8>, Vec<u8>> {
-    let resources = find_folder::Search::ParentsThenKids(3, 3)
-        .for_folder("assets")
-        .unwrap();
-    let sprite = resources.join(path);
-    let img = image::open(&sprite).unwrap();
-    let img = match img {
-        image::DynamicImage::ImageRgba8(img) => img,
-        x => x.to_rgba(),
-    };
-    img
-}
-
-fn create_texture_from_image(img: image::ImageBuffer<image::Rgba<u8>, Vec<u8>>)
-                             -> opengl_graphics::Texture {
-    let mut texture_settings = opengl_graphics::TextureSettings::new();
-    texture_settings.set_convert_gamma(true);
-    texture_settings.set_compress(true);
-    texture_settings.set_filter(Filter::Nearest);
-    texture_settings.set_mag(Filter::Nearest);
-    // texture_settings.set_mipmap(Filter::Linear);
-    opengl_graphics::Texture::from_image(&img, &texture_settings)
-}
-
-fn convert_image_from_srgb_to_linear(img: image::ImageBuffer<image::Rgba<u8>, Vec<u8>>)
-                                     -> image::ImageBuffer<image::Rgba<u8>, Vec<u8>> {
-    let mut new_img = img.clone();
-
-    for (x, y, pixel) in img.enumerate_pixels() {
-        let (r, g, b, a) = pixel.channels4();
-        let r = r as f32 / 255.0;
-        let g = g as f32 / 255.0;
-        let b = b as f32 / 255.0;
-        let a = a as f32 / 255.0;
-        let new_color = gamma_srgb_to_linear([r, g, b, a]);
-        let r = (new_color[0] * 255.0) as u8;
-        let g = (new_color[1] * 255.0) as u8;
-        let b = (new_color[2] * 255.0) as u8;
-        let a = (new_color[3] * 255.0) as u8;
-        let new_pixel = image::Pixel::from_channels(r, g, b, a);
-        new_img.put_pixel(x, y, new_pixel);
-    }
-
-    new_img
-}
-
 
 #[inline]
 fn position_to_screen_position(camera: &Camera, rect: &[f64; 2]) -> [f64; 2] {
@@ -87,18 +39,11 @@ fn position_to_screen_position(camera: &Camera, rect: &[f64; 2]) -> [f64; 2] {
 }
 
 pub struct RenderSystem {
-    // pub gl: &'a mut opengl_graphics::GlGraphics,
-    pub texture: Rc<opengl_graphics::Texture>,
 }
 
 impl RenderSystem {
     pub fn new() -> RenderSystem {
-        let img = convert_image_from_srgb_to_linear(load_image("lel.png"));
-        let texture = Rc::new(create_texture_from_image(img));
-
         RenderSystem {
-            // gl: gl,
-            texture: texture,
         }
     }
 }
@@ -107,29 +52,29 @@ pub struct RenderArgsResource {
     pub args: Option<RenderArgs>,
 }
 
-impl Component for tiled_map::Map {
-    type Storage = HashMapStorage<tiled_map::Map>;
-}
-
 impl<'a> System<'a> for RenderSystem {
     type SystemData = (Fetch<'a, RenderArgsResource>,
      FetchMut<'a, opengl_graphics::GlGraphics>,
      ReadStorage<'a, tiled_map::Map>,
+     ReadStorage<'a, Renderable>,
      ReadStorage<'a, Camera>);
 
 
     fn run(&mut self, data: Self::SystemData) {
 
-        let (resource, mut gl, map, camera) = data;
+        let (resource, mut gl, map, renderable, camera) = data;
 
         for camera in (&camera).join() {
-            for map in (&map).join() {
+            for map_render in (&map, &renderable).join() {
                 use graphics::*;
                 use graphics::image::draw_many;
 
+                let ref map = map_render.0;
+                let ref texture = map_render.1.texture;
+
                 let (sprite_w, sprite_h) = (map.tile_size.0 as u32, map.tile_size.1 as u32);
 
-                let (tex_w, tex_h) = self.texture.get_size();
+                let (tex_w, tex_h) = texture.get_size();
 
                 let grid = TilesGridAccessor {
                     tiles_size: (sprite_w as u32, sprite_h as u32),
@@ -143,7 +88,7 @@ impl<'a> System<'a> for RenderSystem {
                             ((args.width as f64 / (sprite_w as f64 * camera.area[0])),
                              (args.height as f64 / (sprite_h as f64 * camera.area[1])));
 
-                        let hack = self.texture.clone();
+                        let hack = texture.clone();
 
                         gl.draw(args.viewport(), |c, g| {
 
@@ -156,7 +101,7 @@ impl<'a> System<'a> for RenderSystem {
 
                             draw_many(&glyph_rectangles,
                                       [1.0, 1.0, 1.0, 1.0],
-                                      &*hack,
+                                      hack.as_ref(),
                                       &DrawState::default(),
                                       c.transform.scale(scale_w as f64, scale_h as f64),
                                       g);

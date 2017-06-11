@@ -1,12 +1,18 @@
 extern crate tmx;
 extern crate find_folder;
 
+use specs::*;
 
 #[derive(Debug)]
 pub struct Map {
     pub tmx: tmx::Map,
     pub dimension: (u32, u32),
     pub tile_size: (u32, u32),
+    pub tileset_file: String,
+}
+
+impl Component for Map {
+    type Storage = HashMapStorage<Map>;
 }
 
 pub struct MapBuilder {
@@ -36,11 +42,19 @@ impl MapBuilder {
             Err(e) => panic!("Got an error: {}", e),
         };
 
+        let mut src: Option<String> = None;
+
+        for set in tmx_map.tilesets() {
+            src = Some(String::from(set.image().unwrap().source()));
+            break;
+        }
+
         let dimension = (tmx_map.width(), tmx_map.height());
         let tile_size = (tmx_map.tile_width(), tmx_map.tile_height());
 
         Map {
             tmx: tmx_map,
+            tileset_file: src.unwrap(),
             dimension: dimension,
             tile_size: tile_size,
         }

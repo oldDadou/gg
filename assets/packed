@@ -1,0 +1,13 @@
+
+packed.png
+size: 128,256
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+basictiles
+  rotate: false
+  xy: 0, 0
+  size: 128, 232
+  orig: 128, 240
+  offset: 0, 8
+  index: -1

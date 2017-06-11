@@ -4,7 +4,7 @@ extern crate specs;
 extern crate image;
 
 use piston::input::*;
-use specs::prelude::*;
+use specs::*;
 
 pub struct InputSystem {}
 

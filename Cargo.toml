@@ -4,6 +4,7 @@ version = "0.1.0"
 authors = ["FAURE Adrien <adrien.faure2@gmail.com>"]
 
 [dependencies]
+specs = "0.9.0"
 piston = "0.32.0"
 piston-shaders_graphics2d = "0.3.1"
 find_folder = "0.3.0"
@@ -19,7 +20,6 @@ fnv = "1.0.2"
 
 tmx = { path = "../tmx" }
 
-specs = { git = "https://github.com/slide-rs/specs" }
 
 rand = "0.3.15"
 

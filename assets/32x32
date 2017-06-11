@@ -1,0 +1,13 @@
+
+32x32.png
+size: 1024,1024
+format: RGBA8888
+filter: Nearest,Nearest
+repeat: none
+terrain
+  rotate: false
+  xy: 0, 0
+  size: 672, 736
+  orig: 672, 736
+  offset: 0, 0
+  index: -1
