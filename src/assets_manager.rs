@@ -4,9 +4,7 @@ extern crate opengl_graphics;
 extern crate image;
 extern crate tmx;
 
-use specs::*;
 use std::collections::*;
-use std::rc::Rc;
 use std::sync::Arc;
 use graphics::color::gamma_srgb_to_linear;
 use opengl_graphics::*;

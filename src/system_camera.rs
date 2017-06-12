@@ -58,6 +58,7 @@ impl<'a> System<'a> for CameraSystem {
                     match resizeargs.args {
                         Some(args) => {
                             scale_to_resolution(camera, args.0, args.1);
+                            camera.zoom = 1f64;
                         },
                         _ => {}
                     }

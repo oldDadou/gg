@@ -44,7 +44,7 @@ fn main() {
     let mut assets = AssetsManager::new();
 
     let mut scene = SceneBuilder::new()
-        .map(&String::from("16pix.tmx"))
+        .map(&String::from("map.tmx"))
         .manager(&mut assets)
         .graphics(gl)
         .build();

@@ -12,7 +12,6 @@ use system_camera::*;
 use system_input::*;
 use resources::*;
 
-
 pub struct Scene<'a, 'b> {
     world: World,
     dispatcher: Dispatcher<'a, 'b>
