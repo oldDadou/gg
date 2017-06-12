@@ -7,7 +7,8 @@ use renderable::*;
 
 use assets_manager::*;
 
-use system_render::*;
+use system_map_render::*;
+use system_debug_render::*;
 use system_camera::*;
 use system_input::*;
 use resources::*;
@@ -66,7 +67,8 @@ impl<'a> SceneBuilder<'a> {
 
         let camera = Camera::new();
 
-        let sys: RenderSystem = RenderSystem::new();
+        let sys: RenderMapSystem = RenderMapSystem::new();
+        let debug: RenderDebugSystem = RenderDebugSystem::new();
         let camesys: CameraSystem = CameraSystem::new();
 
         let map = self.map.unwrap();
@@ -99,6 +101,7 @@ impl<'a> SceneBuilder<'a> {
             .add_thread_local(InputSystem {})
             .add_thread_local(camesys)
             .add_thread_local(sys)
+            .add_thread_local(debug)
             .build();
 
         Scene {

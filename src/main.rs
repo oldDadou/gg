@@ -5,7 +5,8 @@ extern crate sdl2_window;
 extern crate specs;
 extern crate find_folder;
 
-mod system_render;
+mod system_map_render;
+mod system_debug_render;
 mod system_camera;
 mod system_input;
 
@@ -57,6 +58,12 @@ fn main() {
         *scene.mut_world().write_resource::<ResizeArgsResource>() =
             ResizeArgsResource { args: None };
 
+
+        if let Some(args) = e.resize_args() {
+            *scene.mut_world().write_resource::<ResizeArgsResource>() =
+                ResizeArgsResource { args: Some((args[0], args[1])) };
+        }
+
         if let Some(button) = e.press_args() {
             scene.mut_world()
                 .write_resource::<system_input::PressButtonResource>()
@@ -68,11 +75,6 @@ fn main() {
             scene.mut_world().write_resource::<system_input::ReleaseButtonResource>()
                 .inputs
                 .push(button);
-        }
-
-        if let Some(args) = e.resize_args() {
-            *scene.mut_world().write_resource::<ResizeArgsResource>() =
-                ResizeArgsResource { args: Some((args[0], args[1])) };
         }
 
         if let Some(args) = e.render_args() {

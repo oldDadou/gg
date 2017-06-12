@@ -39,17 +39,17 @@ fn position_to_screen_position(camera: &Camera, rect: &[f64; 2]) -> [f64; 2] {
     [rect[0] - came_pos[0], rect[1] - came_pos[1]]
 }
 
-pub struct RenderSystem {
+pub struct RenderMapSystem {
 }
 
-impl RenderSystem {
-    pub fn new() -> RenderSystem {
-        RenderSystem {
+impl RenderMapSystem {
+    pub fn new() -> RenderMapSystem {
+        RenderMapSystem {
         }
     }
 }
 
-impl<'a> System<'a> for RenderSystem {
+impl<'a> System<'a> for RenderMapSystem {
     type SystemData = (Fetch<'a, RenderArgsResource>,
      FetchMut<'a, opengl_graphics::GlGraphics>,
      ReadStorage<'a, tiled_map::Map>,
