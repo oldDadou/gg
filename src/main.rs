@@ -14,7 +14,9 @@ mod scene;
 mod tiled_map;
 mod renderable;
 mod camera;
+mod resources;
 
+use resources::*;
 use scene::*;
 use piston::event_loop::*;
 use piston::input::*;
@@ -25,7 +27,7 @@ use opengl_graphics::*;
 fn main() {
     let opengl = OpenGL::V3_2;
 
-    let mut window: Sdl2Window = WindowSettings::new("opengl_graphics: hello_world", [640, 640])
+    let mut window: Sdl2Window = WindowSettings::new("opengl_graphics: hello_world", [1280, 720])
         .exit_on_esc(true)
         .vsync(true)
         .opengl(opengl)
@@ -43,8 +45,11 @@ fn main() {
 
     while let Some(e) = events.next(&mut window) {
 
-        *scene.mut_world().write_resource::<system_render::RenderArgsResource>() =
-            system_render::RenderArgsResource { args: None };
+        *scene.mut_world().write_resource::<RenderArgsResource>() =
+            RenderArgsResource { args: None };
+
+        *scene.mut_world().write_resource::<ResizeArgsResource>() =
+            ResizeArgsResource { args: None };
 
         if let Some(button) = e.press_args() {
             scene.mut_world()
@@ -59,9 +64,14 @@ fn main() {
                 .push(button);
         }
 
+        if let Some(args) = e.resize_args() {
+            *scene.mut_world().write_resource::<ResizeArgsResource>() =
+                ResizeArgsResource { args: Some((args[0], args[1])) };
+        }
+
         if let Some(args) = e.render_args() {
-            *scene.mut_world().write_resource::<system_render::RenderArgsResource>() =
-                system_render::RenderArgsResource { args: Some(args.clone()) };
+            *scene.mut_world().write_resource::<RenderArgsResource>() =
+                RenderArgsResource { args: Some(args.clone()) };
         }
 
         scene.update();

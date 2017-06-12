@@ -7,8 +7,9 @@ extern crate tmx;
 use camera::*;
 use renderable::*;
 use specs::*;
-use piston::input::*;
 use tiled_map;
+use resources::*;
+
 
 #[derive(Debug)]
 pub struct TilesGridAccessor {
@@ -32,10 +33,9 @@ impl TilesGridAccessor {
 
 #[inline]
 fn position_to_screen_position(camera: &Camera, rect: &[f64; 2]) -> [f64; 2] {
-    let cam_rect = [camera.position[0] - camera.area[0] / 2f64,
-                    camera.position[1] - camera.area[1] / 2f64];
+    let came_pos = get_edge_position(camera);
 
-    [rect[0] - cam_rect[0], rect[1] - cam_rect[1]]
+    [rect[0] - came_pos[0], rect[1] - came_pos[1]]
 }
 
 pub struct RenderSystem {
@@ -46,10 +46,6 @@ impl RenderSystem {
         RenderSystem {
         }
     }
-}
-
-pub struct RenderArgsResource {
-    pub args: Option<RenderArgs>,
 }
 
 impl<'a> System<'a> for RenderSystem {
@@ -85,8 +81,8 @@ impl<'a> System<'a> for RenderSystem {
                     Some(args) => {
 
                         let (scale_w, scale_h) =
-                            ((args.width as f64 / (sprite_w as f64 * camera.area[0])),
-                             (args.height as f64 / (sprite_h as f64 * camera.area[1])));
+                            ((args.width as f64 / (sprite_w as f64 * camera_viewport_width(camera)) ),
+                             (args.height as f64 / (sprite_h as f64 * camera_viewport_height(camera))) );
 
                         let hack = texture.clone();
 
@@ -138,10 +134,11 @@ pub fn render_map(glyph_rectangles: &mut Vec<([f64; 4], [f64; 4])>,
                     let position = [((ti.0 as u32) % map.dimension.0) as f64,
                                     ((ti.0 as u32) / map.dimension.1) as f64];
 
-                    if camera.collide(&[position[0], position[1], 1f64, 1f64]) {
+                    if camera_collide(camera, &[position[0], position[1], 1f64, 1f64]) {
 
                         let screen_position = position_to_screen_position(camera,
                                                                           &position as &[f64; 2]);
+
                         let pixel_position = [(map.tile_size.0 as f64 * screen_position[0]),
                                               map.tile_size.0 as f64 * screen_position[1]];
 

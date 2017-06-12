@@ -8,6 +8,7 @@ use renderable::*;
 use system_render::*;
 use system_camera::*;
 use system_input::*;
+use resources::*;
 
 
 pub struct Scene<'a, 'b> {
@@ -55,10 +56,7 @@ impl SceneBuilder {
 
         let mut world = World::new();
 
-        let camera = Camera {
-            position: [5f64, 5f64],
-            area: [8f64, 8f64],
-        };
+        let camera = Camera::new();
 
 
         let sys: RenderSystem = RenderSystem::new();
@@ -83,6 +81,7 @@ impl SceneBuilder {
 
         // Let's use some start value
         world.add_resource(RenderArgsResource { args: None });
+        world.add_resource(ResizeArgsResource { args: None });
 
         // Init input resources
         world.add_resource(PressButtonResource { inputs: vec![] });
