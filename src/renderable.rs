@@ -5,11 +5,7 @@ extern crate image;
 extern crate tmx;
 
 use specs::*;
-use std::rc::Rc;
-use graphics::color::gamma_srgb_to_linear;
 use opengl_graphics::*;
-
-use renderable::image::Pixel;
 
 use std::sync::Arc;
 
@@ -22,88 +18,27 @@ impl Component for Renderable {
 }
 
 pub struct RenderableBuilder {
-    texture: Option<Rc<Texture>>,
-    assets_path: Option<String>,
-    name: Option<String>
+    texture: Option<Arc<Texture>>,
 }
 
 impl RenderableBuilder {
 
     pub fn new() -> RenderableBuilder {
         RenderableBuilder {
-            texture: None,
-            assets_path: None,
-            name: None
+            texture: None
         }
     }
 
-    pub fn assets_path(mut self, path :&String) -> RenderableBuilder {
-        self.assets_path = Some(path.clone());
-        self
-    }
-
-    pub fn name(mut self, name :&String) -> RenderableBuilder {
-        self.name = Some(name.clone());
+    pub fn texture(mut self, texture: Arc<Texture>) -> RenderableBuilder {
+        self.texture = Some(texture);
         self
     }
 
     pub fn build(self) -> Renderable {
 
-        let img = convert_image_from_srgb_to_linear(load_image(&self.name.unwrap()));
-        // let img = load_image(&self.name.unwrap());
-        let texture = create_texture_from_image(img);
-
         Renderable{
-            texture: Arc::new(texture)
+            texture: self.texture.unwrap()
         }
 
     }
-}
-
-fn load_image(path: &str) -> image::ImageBuffer<image::Rgba<u8>, Vec<u8>> {
-
-    let resources = find_folder::Search::ParentsThenKids(3, 3)
-        .for_folder("assets")
-        .unwrap();
-
-    let sprite = resources.join(path);
-    let img = image::open(&sprite).unwrap();
-    let img = match img {
-        image::DynamicImage::ImageRgba8(img) => img,
-        x => x.to_rgba(),
-    };
-    img
-}
-
-fn create_texture_from_image(img: image::ImageBuffer<image::Rgba<u8>, Vec<u8>>)
-                             -> opengl_graphics::Texture {
-    let mut texture_settings = opengl_graphics::TextureSettings::new();
-    texture_settings.set_convert_gamma(true);
-    texture_settings.set_compress(true);
-    texture_settings.set_filter(Filter::Nearest);
-    texture_settings.set_mag(Filter::Nearest);
-    // texture_settings.set_mipmap(Filter::Linear);
-    opengl_graphics::Texture::from_image(&img, &texture_settings)
-}
-
-fn convert_image_from_srgb_to_linear(img: image::ImageBuffer<image::Rgba<u8>, Vec<u8>>)
-                                     -> image::ImageBuffer<image::Rgba<u8>, Vec<u8>> {
-    let mut new_img = img.clone();
-
-    for (x, y, pixel) in img.enumerate_pixels() {
-        let (r, g, b, a) = pixel.channels4();
-        let r = r as f32 / 255.0;
-        let g = g as f32 / 255.0;
-        let b = b as f32 / 255.0;
-        let a = a as f32 / 255.0;
-        let new_color = gamma_srgb_to_linear([r, g, b, a]);
-        let r = (new_color[0] * 255.0) as u8;
-        let g = (new_color[1] * 255.0) as u8;
-        let b = (new_color[2] * 255.0) as u8;
-        let a = (new_color[3] * 255.0) as u8;
-        let new_pixel = image::Pixel::from_channels(r, g, b, a);
-        new_img.put_pixel(x, y, new_pixel);
-    }
-
-    new_img
 }

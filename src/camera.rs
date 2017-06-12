@@ -36,8 +36,12 @@ pub fn camera_viewport_width(camera: &Camera) -> f64 {
 }
 
 #[inline]
-pub fn zoom_to_fill(camera: &Camera, size: f64) -> f64 {
+pub fn zoom_to_fill_width(camera: &Camera, size: f64) -> f64 {
     camera.area[0] / size
+}
+#[inline]
+pub fn zoom_to_fill_height(camera: &Camera, size: f64) -> f64 {
+    camera.area[1] / size
 }
 
 #[inline]

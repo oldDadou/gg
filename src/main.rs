@@ -9,6 +9,8 @@ mod system_render;
 mod system_camera;
 mod system_input;
 
+mod assets_manager;
+
 mod scene;
 
 mod tiled_map;
@@ -16,6 +18,7 @@ mod renderable;
 mod camera;
 mod resources;
 
+use assets_manager::*;
 use resources::*;
 use scene::*;
 use piston::event_loop::*;
@@ -38,8 +41,11 @@ fn main() {
 
     let gl = GlGraphics::new(opengl);
 
+    let mut assets = AssetsManager::new();
+
     let mut scene = SceneBuilder::new()
-        .map(&String::from("map.tmx"))
+        .map(&String::from("16pix.tmx"))
+        .manager(&mut assets)
         .graphics(gl)
         .build();
 

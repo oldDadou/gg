@@ -5,6 +5,8 @@ use specs::*;
 use camera::*;
 use renderable::*;
 
+use assets_manager::*;
+
 use system_render::*;
 use system_camera::*;
 use system_input::*;
@@ -13,7 +15,7 @@ use resources::*;
 
 pub struct Scene<'a, 'b> {
     world: World,
-    dispatcher: Dispatcher<'a, 'b>,
+    dispatcher: Dispatcher<'a, 'b>
 }
 
 impl<'a, 'b> Scene<'a, 'b> {
@@ -27,37 +29,43 @@ impl<'a, 'b> Scene<'a, 'b> {
     }
 }
 
-pub struct SceneBuilder {
+pub struct SceneBuilder<'a> {
     map: Option<Map>,
     gl: Option<opengl_graphics::GlGraphics>,
+    assets: Option<&'a mut AssetsManager>
 }
 
-impl SceneBuilder {
-    pub fn new() -> SceneBuilder {
+impl<'a> SceneBuilder<'a> {
+    pub fn new() -> SceneBuilder<'a> {
         SceneBuilder {
             map: None,
             gl: None,
+            assets: None
         }
     }
 
-    pub fn graphics(mut self, gl: opengl_graphics::GlGraphics) -> SceneBuilder {
+    pub fn manager(mut self, manager: &'a mut AssetsManager) -> SceneBuilder<'a> {
+        self.assets = Some(manager);
+        self
+    }
+
+    pub fn graphics(mut self, gl: opengl_graphics::GlGraphics) -> SceneBuilder<'a> {
         self.gl = Some(gl);
         self
     }
 
-    pub fn map(mut self, map_name: &String) -> SceneBuilder {
+    pub fn map(mut self, map_name: &String) -> SceneBuilder<'a> {
         let mut builder = MapBuilder::new();
         builder = builder.name(map_name);
         self.map = Some(builder.build());
         self
     }
 
-    pub fn build<'b, 'a>(self) -> Scene<'b, 'a> {
+    pub fn build<'b, 'd>(self) -> Scene<'b, 'd> {
 
         let mut world = World::new();
 
         let camera = Camera::new();
-
 
         let sys: RenderSystem = RenderSystem::new();
         let camesys: CameraSystem = CameraSystem::new();
@@ -70,7 +78,7 @@ impl SceneBuilder {
 
         world
             .create_entity()
-            .with(RenderableBuilder::new().name(&map.tileset_file).build())
+            .with(RenderableBuilder::new().texture(self.assets.unwrap().get_texture(&map.tileset_file)).build())
             .with(map)
             .build();
 

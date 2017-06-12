@@ -18,6 +18,7 @@ pub struct TilesGridAccessor {
 }
 
 impl TilesGridAccessor {
+
     /// Return the rect containing the sprite (ready to draw)
     pub fn access_sprite(&self, idx: u32) -> [f64; 4] {
         let x = (self.tiles_size.0) * ((idx - 1) % (self.surface_size.0 / self.tiles_size.0));

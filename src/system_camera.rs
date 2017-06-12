@@ -93,8 +93,10 @@ impl<'a> System<'a> for CameraSystem {
                         if *button == Button::Keyboard(Key::NumPadMinus) {
                             camera.zoom -= 0.1;
 
-                            if (camera_viewport_width(camera) > map.dimension.0 as f64) || ( camera_viewport_height(camera) > map.dimension.1 as f64) {
-                                camera.zoom = zoom_to_fill(camera, 30f64);
+                            if camera_viewport_height(camera) > map.dimension.1 as f64 {
+                                camera.zoom = zoom_to_fill_height(camera, 30f64);
+                            } else if camera_viewport_width(camera) > map.dimension.0 as f64 {
+                                camera.zoom = zoom_to_fill_width(camera, 30f64);
                             }
 
                         }
