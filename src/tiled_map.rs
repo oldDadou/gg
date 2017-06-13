@@ -46,7 +46,7 @@ impl MapBuilder {
 
         for set in tmx_map.tilesets() {
             src = Some(String::from(set.image().unwrap().source()));
-            break;
+            break; // Hence will work only with one tileset
         }
 
         let dimension = (tmx_map.width(), tmx_map.height());

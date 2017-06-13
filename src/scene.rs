@@ -91,6 +91,7 @@ impl<'a> SceneBuilder<'a> {
         // Let's use some start value
         world.add_resource(RenderArgsResource { args: None });
         world.add_resource(ResizeArgsResource { args: None });
+        world.add_resource(InputArgsResources { args: None });
 
         // Init input resources
         world.add_resource(PressButtonResource { inputs: vec![] });

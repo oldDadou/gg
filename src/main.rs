@@ -66,13 +66,13 @@ fn main() {
 
         if let Some(button) = e.press_args() {
             scene.mut_world()
-                .write_resource::<system_input::PressButtonResource>()
+                .write_resource::<PressButtonResource>()
                 .inputs
                 .push(button);
         }
 
         if let Some(button) = e.release_args() {
-            scene.mut_world().write_resource::<system_input::ReleaseButtonResource>()
+            scene.mut_world().write_resource::<ReleaseButtonResource>()
                 .inputs
                 .push(button);
         }
@@ -80,6 +80,12 @@ fn main() {
         if let Some(args) = e.render_args() {
             *scene.mut_world().write_resource::<RenderArgsResource>() =
                 RenderArgsResource { args: Some(args.clone()) };
+        }
+
+        if let Some(pos) = e.mouse_cursor_args() {
+            let (x, y) = (pos[0] as f32, pos[1] as f32);
+            *scene.mut_world().write_resource::<InputArgsResources>() =
+                InputArgsResources { args: Some(e.clone()) };
         }
 
         scene.update();

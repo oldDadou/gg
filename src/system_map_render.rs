@@ -125,7 +125,9 @@ pub fn render_map(glyph_rectangles: &mut Vec<([f64; 4], [f64; 4])>,
     for l in map.tmx.layers() {
         match l.data() {
             Some(tiles) => {
+
                 for ti in tiles.tiles().enumerate() {
+
                     if ti.1.gid == 0 {
                         continue;
                     };

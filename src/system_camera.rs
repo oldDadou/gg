@@ -9,6 +9,7 @@ use camera::*;
 use system_input::*;
 use tiled_map;
 use resources::*;
+use tiled_map::*;
 
 pub struct CameraSystem {}
 
@@ -19,11 +20,11 @@ impl CameraSystem {
 }
 
 #[inline]
-fn smooth_camera_position(camera: &mut Camera) {
+fn smooth_camera_position(camera: &mut Camera, map: &Map) {
     let edge = get_edge_position(camera);
 
-    if edge[2] > 30f64 {
-        camera.position[0] = 30f64 - camera_viewport_width(camera) / 2f64;
+    if edge[2] > map.dimension.0 as f64 {
+        camera.position[0] = (map.dimension.0 as f64) - camera_viewport_width(camera) / 2f64;
     }
     if edge[0] < 0f64 {
         camera.position[0] = camera_viewport_width(camera) / 2f64;
@@ -32,8 +33,8 @@ fn smooth_camera_position(camera: &mut Camera) {
     if edge[1] < 0f64 {
         camera.position[1] = camera_viewport_height(camera) / 2f64;
     }
-    if edge[3] > 30f64 {
-        camera.position[1] = 30f64 - (camera_viewport_height(camera) / 2f64);
+    if edge[3] > map.dimension.1 as f64 {
+        camera.position[1] =(map.dimension.1 as f64) - (camera_viewport_height(camera) / 2f64);
     }
 
 }
@@ -95,14 +96,16 @@ impl<'a> System<'a> for CameraSystem {
                             camera.zoom -= 0.1;
 
                             if camera_viewport_height(camera) > map.dimension.1 as f64 {
-                                camera.zoom = zoom_to_fill_height(camera, 30f64);
-                            } else if camera_viewport_width(camera) > map.dimension.0 as f64 {
-                                camera.zoom = zoom_to_fill_width(camera, 30f64);
+                                camera.zoom = zoom_to_fill_height(camera, map.dimension.1 as f64);
+                            }
+
+                            if camera_viewport_width(camera) > map.dimension.0 as f64 {
+                                camera.zoom = zoom_to_fill_width(camera, map.dimension.0 as f64);
                             }
 
                         }
                     }
-                    smooth_camera_position(camera)
+                    smooth_camera_position(camera, map);
                 }
             }
         }

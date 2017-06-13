@@ -8,16 +8,11 @@ extern crate piston;
 extern crate graphics;
 extern crate sdl2_window;
 
-use piston::window::{WindowSettings, Size};
-use piston::event_loop::*;
-use piston::input::*;
-use opengl_graphics::*;
+
 use opengl_graphics::glyph_cache::GlyphCache;
-use sdl2_window::Sdl2Window;
-use camera::*;
-use renderable::*;
+
+use resources::*;
 use specs::*;
-use tiled_map;
 use resources::*;
 
 pub struct RenderDebugSystem<'a> {
@@ -26,7 +21,7 @@ pub struct RenderDebugSystem<'a> {
 
 impl<'a> RenderDebugSystem<'a> {
     pub fn new() -> RenderDebugSystem<'a> {
-        let mut glyph_cache = GlyphCache::new("assets/FiraSans-Regular.ttf").unwrap();
+        let glyph_cache = GlyphCache::new("assets/FiraSans-Regular.ttf").unwrap();
 
         RenderDebugSystem {
             cache: glyph_cache
@@ -36,24 +31,34 @@ impl<'a> RenderDebugSystem<'a> {
 
 impl<'a, 'b> System<'a> for RenderDebugSystem<'b> {
     type SystemData = (Fetch<'a, RenderArgsResource>,
+    Fetch<'a, GameInputResources>,
     FetchMut<'a, opengl_graphics::GlGraphics>);
 
 
     fn run(&mut self, data: Self::SystemData) {
 
-        let (resource, mut gl) = data;
+        let (resource, inputs, mut gl) = data;
 
         match resource.args {
             Some(args) => {
                 gl.draw(args.viewport(), |c, g| {
                     use graphics::*;
 
-                    text::Text::new_color([0.0, 0.5, 0.0, 1.0], 32).draw("Hello opengl_graphics!",
+                    text::Text::new_color([255.0, 0.0, 0.0, 1.0], 32).draw("Debug mod",
                     &mut self.cache,
                     &DrawState::default(),
                     c.transform
-                    .trans(10.0, 100.0),
+                    .trans(10.0, 20.0),
                     g);
+
+                    let mouse_info = format!("x_screen: {}, y_screen: {}", inputs.cursor_position.0, inputs.cursor_position.1);
+                    text::Text::new_color([255.0, 0.0, 0.0, 1.0], 32).draw(&mouse_info,
+                    &mut self.cache,
+                    &DrawState::default(),
+                    c.transform
+                    .trans(10.0, 50.0),
+                    g);
+
                 });
             }
             _ => {}
