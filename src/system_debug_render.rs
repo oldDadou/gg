@@ -37,7 +37,7 @@ impl<'a, 'b> System<'a> for RenderDebugSystem<'b> {
 
 
     fn run(&mut self, data: Self::SystemData) {
-        let (resource, dt, inputs, cameras, maps, mut gl) = data;
+        let (resource, _, inputs, cameras, maps, mut gl) = data;
 
         for camera in cameras.join() {
             for _ in maps.join() {

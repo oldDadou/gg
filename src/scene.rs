@@ -11,20 +11,15 @@ use system_map_render::*;
 use system_debug_render::*;
 use system_camera::*;
 use system_input::*;
-use resources::*;
 
 pub struct Scene<'a, 'b> {
-    world: World,
     dispatcher: Dispatcher<'a, 'b>,
 }
 
 impl<'a, 'b> Scene<'a, 'b> {
-    pub fn mut_world(&mut self) -> &mut World {
-        &mut self.world
-    }
 
-    pub fn update(&mut self) {
-        self.dispatcher.dispatch(&mut self.world.res);
+    pub fn update(&mut self, world: &mut World) {
+        self.dispatcher.dispatch(&mut world.res);
     }
 }
 
@@ -39,7 +34,7 @@ impl<'a> SceneBuilder<'a> {
         SceneBuilder {
             map: None,
             gl: None,
-            assets: None,
+            assets: None
         }
     }
 
@@ -60,9 +55,7 @@ impl<'a> SceneBuilder<'a> {
         self
     }
 
-    pub fn build<'b, 'd>(self) -> Scene<'b, 'd> {
-
-        let mut world = World::new();
+    pub fn build<'b, 'd>(self, world: &mut World) -> Scene<'b, 'd> {
 
         let camera = Camera::new();
 
@@ -71,10 +64,6 @@ impl<'a> SceneBuilder<'a> {
         let camesys: CameraSystem = CameraSystem::new();
 
         let map = self.map.unwrap();
-
-        world.register::<Map>();
-        world.register::<Camera>();
-        world.register::<Renderable>();
 
         world
             .create_entity()
@@ -86,19 +75,7 @@ impl<'a> SceneBuilder<'a> {
 
 
         world.create_entity().with(camera).build();
-
         world.add_resource(self.gl.unwrap());
-
-        // Let's use some start value
-        world.add_resource(RenderArgsResource { args: None });
-        world.add_resource(ResizeArgsResource { args: None });
-        world.add_resource(InputArgsResources { args: None });
-        world.add_resource(DeltaTime { dt: 0f64 });
-
-        // Init input resources
-        world.add_resource(PressButtonResource { inputs: vec![] });
-        world.add_resource(ReleaseButtonResource { inputs: vec![] });
-        world.add_resource(GameInputResources::new());
 
         let dispatcher = DispatcherBuilder::new()
             .add_thread_local(InputSystem {})
@@ -109,7 +86,6 @@ impl<'a> SceneBuilder<'a> {
 
         Scene {
             dispatcher: dispatcher,
-            world: world,
         }
     }
 }
