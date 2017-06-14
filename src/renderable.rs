@@ -10,7 +10,7 @@ use opengl_graphics::*;
 use std::sync::Arc;
 
 pub struct Renderable {
-    pub texture: Arc<Texture>
+    pub texture: Arc<Texture>,
 }
 
 impl Component for Renderable {
@@ -22,11 +22,8 @@ pub struct RenderableBuilder {
 }
 
 impl RenderableBuilder {
-
     pub fn new() -> RenderableBuilder {
-        RenderableBuilder {
-            texture: None
-        }
+        RenderableBuilder { texture: None }
     }
 
     pub fn texture(mut self, texture: Arc<Texture>) -> RenderableBuilder {
@@ -36,9 +33,7 @@ impl RenderableBuilder {
 
     pub fn build(self) -> Renderable {
 
-        Renderable{
-            texture: self.texture.unwrap()
-        }
+        Renderable { texture: self.texture.unwrap() }
 
     }
 }

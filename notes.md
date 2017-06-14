@@ -70,3 +70,9 @@ by case, which I don't think it is what I want. It may cost a lot in memory.
 
 So what ? I think I will use piston but I will need to write my own framework.
 So the next step is to define what I want my framework to be.
+
+
+Stanbying question:
+
+For my current situation, I have a world map (which is built from software tiled map). My map is currently an entity with an array of tiles; a texture (the tileset)/.
+But need this map in a lot of systems like in the camera_motion_system, (to make sure I do not overflow when I scroll). I then need it to my action_system which needs to find out

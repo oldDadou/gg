@@ -7,7 +7,7 @@ extern crate tmx;
 use piston::input::*;
 
 pub struct InputArgsResources {
-    pub args: Option<Input>
+    pub args: Option<Input>,
 }
 
 pub struct RenderArgsResource {
@@ -17,7 +17,6 @@ pub struct RenderArgsResource {
 pub struct ResizeArgsResource {
     pub args: Option<(u32, u32)>,
 }
-
 
 pub struct PressButtonResource {
     pub inputs: Vec<Button>,
@@ -32,5 +31,5 @@ pub struct GameInputResources {
     pub key_down: Vec<Button>,
     pub active_keys: Vec<Button>,
     pub key_release: Vec<Button>,
-    pub cursor_position: (f64, f64)
+    pub cursor_position: (f64, f64),
 }

@@ -18,7 +18,6 @@ pub struct TilesGridAccessor {
 }
 
 impl TilesGridAccessor {
-
     /// Return the rect containing the sprite (ready to draw)
     pub fn access_sprite(&self, idx: u32) -> [f64; 4] {
         let x = (self.tiles_size.0) * ((idx - 1) % (self.surface_size.0 / self.tiles_size.0));
@@ -29,23 +28,13 @@ impl TilesGridAccessor {
          self.tiles_size.0 as f64,
          self.tiles_size.1 as f64]
     }
-
 }
 
-#[inline]
-fn position_to_screen_position(camera: &Camera, rect: &[f64; 2]) -> [f64; 2] {
-    let came_pos = get_edge_position(camera);
-
-    [rect[0] - came_pos[0], rect[1] - came_pos[1]]
-}
-
-pub struct RenderMapSystem {
-}
+pub struct RenderMapSystem {}
 
 impl RenderMapSystem {
     pub fn new() -> RenderMapSystem {
-        RenderMapSystem {
-        }
+        RenderMapSystem {}
     }
 }
 
@@ -63,6 +52,7 @@ impl<'a> System<'a> for RenderMapSystem {
 
         for camera in (&camera).join() {
             for map_render in (&map, &renderable).join() {
+
                 use graphics::*;
                 use graphics::image::draw_many;
 
@@ -82,8 +72,10 @@ impl<'a> System<'a> for RenderMapSystem {
                     Some(args) => {
 
                         let (scale_w, scale_h) =
-                            ((args.width as f64 / (sprite_w as f64 * camera_viewport_width(camera)) ),
-                             (args.height as f64 / (sprite_h as f64 * camera_viewport_height(camera))) );
+                            ((args.width as f64 /
+                              (sprite_w as f64 * camera_viewport_width(camera))),
+                             (args.height as f64 /
+                              (sprite_h as f64 * camera_viewport_height(camera))));
 
                         let hack = texture.clone();
 

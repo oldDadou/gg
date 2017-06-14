@@ -15,11 +15,10 @@ use resources::*;
 
 pub struct Scene<'a, 'b> {
     world: World,
-    dispatcher: Dispatcher<'a, 'b>
+    dispatcher: Dispatcher<'a, 'b>,
 }
 
 impl<'a, 'b> Scene<'a, 'b> {
-
     pub fn mut_world(&mut self) -> &mut World {
         &mut self.world
     }
@@ -32,7 +31,7 @@ impl<'a, 'b> Scene<'a, 'b> {
 pub struct SceneBuilder<'a> {
     map: Option<Map>,
     gl: Option<opengl_graphics::GlGraphics>,
-    assets: Option<&'a mut AssetsManager>
+    assets: Option<&'a mut AssetsManager>,
 }
 
 impl<'a> SceneBuilder<'a> {
@@ -40,7 +39,7 @@ impl<'a> SceneBuilder<'a> {
         SceneBuilder {
             map: None,
             gl: None,
-            assets: None
+            assets: None,
         }
     }
 
@@ -79,7 +78,9 @@ impl<'a> SceneBuilder<'a> {
 
         world
             .create_entity()
-            .with(RenderableBuilder::new().texture(self.assets.unwrap().get_texture(&map.tileset_file)).build())
+            .with(RenderableBuilder::new()
+                      .texture(self.assets.unwrap().get_texture(&map.tileset_file))
+                      .build())
             .with(map)
             .build();
 

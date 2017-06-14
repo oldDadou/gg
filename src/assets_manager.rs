@@ -12,15 +12,12 @@ use opengl_graphics::*;
 use assets_manager::image::Pixel;
 
 pub struct AssetsManager {
-    textures: HashMap<String, Arc<opengl_graphics::Texture>>
+    textures: HashMap<String, Arc<opengl_graphics::Texture>>,
 }
 
 impl AssetsManager {
-
     pub fn new() -> AssetsManager {
-        AssetsManager{
-            textures: HashMap::new()
-        }
+        AssetsManager { textures: HashMap::new() }
     }
 
     pub fn load_texture(&mut self, path: &String) {
@@ -36,7 +33,6 @@ impl AssetsManager {
         }
         self.textures.get(path).unwrap().clone()
     }
-
 }
 
 

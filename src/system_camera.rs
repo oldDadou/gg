@@ -6,7 +6,6 @@ extern crate image;
 use piston::input::*;
 use specs::*;
 use camera::*;
-use system_input::*;
 use tiled_map;
 use resources::*;
 use tiled_map::*;
@@ -34,79 +33,76 @@ fn smooth_camera_position(camera: &mut Camera, map: &Map) {
         camera.position[1] = camera_viewport_height(camera) / 2f64;
     }
     if edge[3] > map.dimension.1 as f64 {
-        camera.position[1] =(map.dimension.1 as f64) - (camera_viewport_height(camera) / 2f64);
+        camera.position[1] = (map.dimension.1 as f64) - (camera_viewport_height(camera) / 2f64);
     }
 
 }
 
 impl<'a> System<'a> for CameraSystem {
-    type SystemData = (
-        Fetch<'a, ResizeArgsResource>,
-        Fetch<'a, GameInputResources>,
-        ReadStorage<'a, tiled_map::Map>,
-        WriteStorage<'a, Camera>);
+    type SystemData = (Fetch<'a, ResizeArgsResource>,
+     Fetch<'a, GameInputResources>,
+     ReadStorage<'a, tiled_map::Map>,
+     WriteStorage<'a, Camera>);
 
-        fn run(&mut self, data: Self::SystemData) {
+    fn run(&mut self, data: Self::SystemData) {
 
-            let (resizeargs, game_inputs, game_map, mut camera_comps) = data;
+        let (resizeargs, game_inputs, game_map, mut camera_comps) = data;
 
-            for map in (&game_map).join() {
+        for map in (&game_map).join() {
 
-                for camera in (&mut camera_comps).join() {
+            for camera in (&mut camera_comps).join() {
 
-                    // If the windows has been resized, we scale the camera to keep
-                    // the aspect ratio
-                    match resizeargs.args {
-                        Some(args) => {
-                            scale_to_resolution(camera, args.0, args.1);
-                            camera.zoom = 1f64;
-                        },
-                        _ => {}
+                // If the windows has been resized, we scale the camera to keep
+                // the aspect ratio
+                match resizeargs.args {
+                    Some(args) => {
+                        scale_to_resolution(camera, args.0, args.1);
+                        camera.zoom = 1f64;
                     }
-
-                    for button in &game_inputs.active_keys {
-                        if *button == Button::Keyboard(Key::Left) {
-                            camera.position[0] -= 0.05;
-                        }
-
-                        if *button == Button::Keyboard(Key::Right) {
-                            camera.position[0] += 0.05;
-                        }
-
-                        if *button == Button::Keyboard(Key::Up) {
-                            camera.position[1] -= 0.05;
-                        }
-
-                        if *button == Button::Keyboard(Key::Down) {
-                            camera.position[1] += 0.05;
-                        }
-
-                    }
-
-                    for button in &game_inputs.key_down {
-
-                        if *button == Button::Keyboard(Key::NumPadPlus) {
-                            camera.zoom += 0.1;
-                            if camera_viewport_width(camera) <= 5.0f64 || camera_viewport_height(camera) <= 5.0f64 {
-                                camera.zoom -= 0.1;
-                            }
-                        }
-
-                        if *button == Button::Keyboard(Key::NumPadMinus) {
-                            camera.zoom -= 0.1;
-
-                            if camera_viewport_height(camera) > map.dimension.1 as f64 {
-                                camera.zoom = zoom_to_fill_height(camera, map.dimension.1 as f64);
-                            }
-
-                            if camera_viewport_width(camera) > map.dimension.0 as f64 {
-                                camera.zoom = zoom_to_fill_width(camera, map.dimension.0 as f64);
-                            }
-
-                        }
-                    }
-                    smooth_camera_position(camera, map);
+                    _ => {}
                 }
+
+                for button in &game_inputs.active_keys {
+
+                    if *button == Button::Keyboard(Key::Left) {
+                        camera.position[0] -= 0.05;
+                    }
+
+                    if *button == Button::Keyboard(Key::Right) {
+                        camera.position[0] += 0.05;
+                    }
+
+                    if *button == Button::Keyboard(Key::Up) {
+                        camera.position[1] -= 0.05;
+                    }
+
+                    if *button == Button::Keyboard(Key::Down) {
+                        camera.position[1] += 0.05;
+                    }
+
+                    if *button == Button::Keyboard(Key::NumPadPlus) {
+                        camera.zoom -= 0.005;
+                        if camera_viewport_width(camera) <= 5.0f64 ||
+                           camera_viewport_height(camera) <= 5.0f64 {
+                            camera.zoom += 0.005;
+                        }
+                    }
+
+                    if *button == Button::Keyboard(Key::NumPadMinus) {
+                        camera.zoom += 0.005;
+
+                        if camera_viewport_height(camera) > map.dimension.1 as f64 {
+                            camera.zoom = zoom_to_fill_height(camera, map.dimension.1 as f64);
+                        }
+
+                        if camera_viewport_width(camera) > map.dimension.0 as f64 {
+                            camera.zoom = zoom_to_fill_width(camera, map.dimension.0 as f64);
+                        }
+
+                    }
+                }
+                smooth_camera_position(camera, map);
             }
         }
     }
+}

@@ -15,7 +15,7 @@ impl GameInputResources {
             key_down: vec![],
             active_keys: vec![],
             key_release: vec![],
-            cursor_position: (-1f64, -1f64)
+            cursor_position: (-1f64, -1f64),
         }
     }
 }
@@ -34,19 +34,17 @@ impl<'a> System<'a> for InputSystem {
 
         match &input.args {
             &Some(Input::Move(motion)) => {
-                match motion  {
+                match motion {
                     Motion::MouseCursor(x, y) => {
                         game_inputs.cursor_position = (x, y);
-                    },
-                    _ => panic!("Unsupported mouse Move")
+                    }
+                    _ => panic!("Unsupported mouse Move"),
                 }
-            },
+            }
             &Some(ref e) => {
                 println!("Unsupported: {:?}", e);
-            },
-            &None => {
-
             }
+            &None => {}
         }
         while let &Some(button) = &press_input.inputs.pop() {
             game_inputs.key_down.push(button);
