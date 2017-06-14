@@ -41,9 +41,7 @@ impl<'a> System<'a> for InputSystem {
                     _ => panic!("Unsupported mouse Move"),
                 }
             }
-            &Some(ref e) => {
-                println!("Unsupported: {:?}", e);
-            }
+            &Some(_) => {},
             &None => {}
         }
         while let &Some(button) = &press_input.inputs.pop() {

@@ -8,7 +8,6 @@ extern crate piston;
 extern crate graphics;
 extern crate sdl2_window;
 
-
 use opengl_graphics::glyph_cache::GlyphCache;
 
 use tiled_map::*;
@@ -30,6 +29,7 @@ impl<'a> RenderDebugSystem<'a> {
 
 impl<'a, 'b> System<'a> for RenderDebugSystem<'b> {
     type SystemData = (Fetch<'a, RenderArgsResource>,
+     Fetch<'a, DeltaTime>,
      Fetch<'a, GameInputResources>,
      ReadStorage<'a, Camera>,
      ReadStorage<'a, Map>,
@@ -37,7 +37,8 @@ impl<'a, 'b> System<'a> for RenderDebugSystem<'b> {
 
 
     fn run(&mut self, data: Self::SystemData) {
-        let (resource, inputs, cameras, maps, mut gl) = data;
+        let (resource, dt, inputs, cameras, maps, mut gl) = data;
+
         for camera in cameras.join() {
             for _ in maps.join() {
 
@@ -51,14 +52,6 @@ impl<'a, 'b> System<'a> for RenderDebugSystem<'b> {
                             let y_offset = 5f64;
                             let text_size = 16f64;
 
-                            text::Text::new_color([255.0, 0.0, 0.0, 1.0], text_size as u32)
-                                .draw("Debug mod",
-                                      &mut self.cache,
-                                      &DrawState::default(),
-                                      c.transform.trans(y_offset, text_size * current_line),
-                                      g);
-
-                            current_line += 1f64;
                             let camera_info = format!("camera: {:?}", camera);
                             text::Text::new_color([255.0, 0.0, 0.0, 1.0], text_size as u32)
                                 .draw(&camera_info,
@@ -90,21 +83,8 @@ impl<'a, 'b> System<'a> for RenderDebugSystem<'b> {
                                                                     inputs.cursor_position.1]);
                             let camera_info =
                                 format!("cursor pos: {}, {}", pos[0] as u32, pos[1] as u32);
-
                             text::Text::new_color([255.0, 0.0, 0.0, 1.0], text_size as u32)
                                 .draw(&camera_info,
-                                      &mut self.cache,
-                                      &DrawState::default(),
-                                      c.transform.trans(y_offset, text_size * current_line),
-                                      g);
-
-                            current_line += 1f64;
-                            let mouse_info = format!("x_screen: {}, y_screen: {}",
-                                                     inputs.cursor_position.0,
-                                                     inputs.cursor_position.1);
-
-                            text::Text::new_color([255.0, 0.0, 0.0, 1.0], text_size as u32)
-                                .draw(&mouse_info,
                                       &mut self.cache,
                                       &DrawState::default(),
                                       c.transform.trans(y_offset, text_size * current_line),

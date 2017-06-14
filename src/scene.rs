@@ -93,6 +93,7 @@ impl<'a> SceneBuilder<'a> {
         world.add_resource(RenderArgsResource { args: None });
         world.add_resource(ResizeArgsResource { args: None });
         world.add_resource(InputArgsResources { args: None });
+        world.add_resource(DeltaTime { dt: 0f64 });
 
         // Init input resources
         world.add_resource(PressButtonResource { inputs: vec![] });

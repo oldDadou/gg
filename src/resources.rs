@@ -6,6 +6,10 @@ extern crate tmx;
 
 use piston::input::*;
 
+pub struct DeltaTime {
+    pub dt: f64
+}
+
 pub struct InputArgsResources {
     pub args: Option<Input>,
 }
